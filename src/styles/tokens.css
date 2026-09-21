@@ -1,0 +1,97 @@
+/*
+ * SBJ Foods and Drinks — design tokens.
+ *
+ * Soft editorial system, matched to the approved dish-card design:
+ *   - a light, slightly warm page ground carrying rounded panels and tiles
+ *   - photography does the heavy lifting; dark cards sit on the light page
+ *   - pill buttons and glass chips; hairline rules only where they separate
+ *   - heavy tight grotesque display type over wide-tracked uppercase labels
+ *   - one vermillion accent, spent sparingly: price, active state, primary CTA
+ *
+ * The logo is the mark, not the palette — it sits on top of this system.
+ * Re-skinning means editing this file; no component hardcodes a colour.
+ */
+
+:root {
+  /* Brand ------------------------------------------------------------- */
+  --brand: #e8431f;          /* vermillion — the single accent */
+  --brand-strong: #cf3712;   /* hover */
+  --brand-soft: #fde8e3;
+  --on-brand: #ffffff;
+
+  /* Surfaces ---------------------------------------------------------- */
+  --bg: #f2f1ee;             /* warm off-white page ground */
+  --surface: #ffffff;        /* panels and tiles lift off the ground */
+  --surface-raised: #ffffff;
+  --surface-sunken: #e7e6e2;
+  --header-bg: rgb(242 241 238 / 82%);
+  --ink-panel: #141414;      /* the dark panels: hero art, footer, meet */
+  --ink-panel-soft: #1d1d1d;
+
+  /* Text -------------------------------------------------------------- */
+  --ink: #141414;
+  --ink-muted: #6e6e6e;
+  --ink-faint: #9a9a9a;
+  --on-ink: #ffffff;
+
+  /* Rules — hairlines now, not structure. Shape comes from radius and
+     elevation, so these only ever whisper. --------------------------- */
+  --line: rgb(20 20 20 / 11%);
+  --line-soft: rgb(20 20 20 / 8%);
+  --line-strong: rgb(20 20 20 / 20%);
+
+  /* Elevation --------------------------------------------------------- */
+  --shadow-sm: 0 1px 2px rgb(20 20 20 / 5%), 0 4px 14px rgb(20 20 20 / 5%);
+  --shadow-md: 0 6px 18px rgb(20 20 20 / 8%), 0 16px 36px rgb(20 20 20 / 7%);
+  --shadow-lg: 0 22px 48px rgb(20 20 20 / 18%);
+
+  /* Shape — the card's soft corners, carried across the whole site ---- */
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 26px;
+  --r-xl: 34px;
+  --r-full: 999px;
+  --r-card: 26px;   /* dish cards and panels */
+  --r-pill: 999px;  /* every button */
+
+  /* Space ------------------------------------------------------------- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 72px;
+
+  /* The page gutter every inset panel lines up against. */
+  --gutter: var(--s-5);
+
+  /* Type -------------------------------------------------------------- */
+  --font-sans: Archivo, "Archivo Fallback", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-sans);
+
+  --t-xs: 0.75rem;
+  --t-sm: 0.875rem;
+  --t-base: 1.0625rem;
+  --t-lg: 1.1875rem;
+  --t-xl: 1.625rem;     /* dish names */
+  --t-2xl: 2.75rem;     /* section heads, stat figures */
+  --t-3xl: 4rem;
+  --t-4xl: 5.5rem;      /* hero */
+
+  /* Wide tracking on the small uppercase labels the design leans on. */
+  --track-label: 0.18em;
+  --track-tight: -0.035em;
+
+  --header-h: 140px;    /* brand bar + category chips */
+  --brandbar-h: 84px;
+  --strip-h: 56px;
+  --max-w: 100%;
+}
+
+/*
+ * The design is committed to a single light look — a menu read in daylight,
+ * with the food supplying the dark. No dark variant; the ground stays warm
+ * off-white and the accent stays vermillion.
+ */

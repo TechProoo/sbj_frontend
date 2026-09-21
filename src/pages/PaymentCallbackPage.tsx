@@ -1,0 +1,118 @@
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { LuCircleCheck, LuCircleX, LuLoaderCircle } from 'react-icons/lu';
+import { api, ApiError } from '../lib/api';
+import { formatMoney } from '../lib/format';
+import type { PaymentResult } from '../lib/types';
+
+type Phase = 'checking' | 'paid' | 'unpaid' | 'error';
+
+/// Where Paystack sends the customer back to. It appends the reference to the
+/// callback URL itself, as both `reference` and `trxref`.
+///
+/// This page does not decide anything — it asks the API to verify with
+/// Paystack and reports what came back. The webhook may well have settled the
+/// same payment a second earlier; both paths write the same row, so whichever
+/// arrives second is a no-op.
+export function PaymentCallbackPage() {
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const reference = params.get('reference') ?? params.get('trxref');
+
+  const [phase, setPhase] = useState<Phase>('checking');
+  const [result, setResult] = useState<PaymentResult | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  // React 18 mounts twice in development; verifying twice is harmless but the
+  // duplicate request is noise.
+  const asked = useRef(false);
+
+  useEffect(() => {
+    if (!reference) {
+      setPhase('error');
+      setMessage('That link is missing its payment reference.');
+      return;
+    }
+    if (asked.current) return;
+    asked.current = true;
+
+    let live = true;
+
+    api
+      .verifyPayment(reference)
+      .then((payment) => {
+        if (!live) return;
+        setResult(payment);
+        setPhase(payment.paid ? 'paid' : 'unpaid');
+
+        if (payment.paid) {
+          // Let the tick land, then hand over to the real receipt.
+          window.setTimeout(() => {
+            navigate(`/order/${payment.orderId}`, { replace: true });
+          }, 1600);
+        }
+      })
+      .catch((error: unknown) => {
+        if (!live) return;
+        setPhase('error');
+        setMessage(
+          error instanceof ApiError
+            ? error.message
+            : 'We could not reach the payment service.',
+        );
+      });
+
+    return () => {
+      live = false;
+    };
+  }, [reference, navigate]);
+
+  if (phase === 'checking') {
+    return (
+      <div className="checkout-empty">
+        <LuLoaderCircle className="spin" aria-hidden="true" />
+        <h1>Confirming your payment</h1>
+        <p>One moment — we are checking with Paystack.</p>
+      </div>
+    );
+  }
+
+  if (phase === 'paid' && result) {
+    return (
+      <div className="checkout-empty">
+        <LuCircleCheck aria-hidden="true" />
+        <h1>Payment received</h1>
+        <p>
+          {formatMoney(result.amount / 100)} for order{' '}
+          <strong>{result.orderNumber}</strong>. Taking you to your receipt…
+        </p>
+        <Link className="btn btn-primary" to={`/order/${result.orderId}`}>
+          View my order
+        </Link>
+      </div>
+    );
+  }
+
+  // Not paid, or we could not tell. Either way the order itself is safe on the
+  // kitchen board as unpaid, so the way out is back to it rather than a
+  // re-checkout that would duplicate the ticket.
+  return (
+    <div className="checkout-empty">
+      <LuCircleX aria-hidden="true" />
+      <h1>{phase === 'error' ? 'We could not confirm that' : 'Payment not completed'}</h1>
+      <p>
+        {message ??
+          result?.gatewayResponse ??
+          'Nothing was charged. You can try paying again from your order.'}
+      </p>
+      {result?.orderId ? (
+        <Link className="btn btn-primary" to={`/order/${result.orderId}`}>
+          Back to my order
+        </Link>
+      ) : (
+        <Link className="btn btn-primary" to="/track">
+          Find my order
+        </Link>
+      )}
+    </div>
+  );
+}

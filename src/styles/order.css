@@ -1,0 +1,687 @@
+/*
+ * The order flow: checkout, confirmation and tracking.
+ *
+ * Split out of app.css because these three pages share a vocabulary the rest
+ * of the site does not use — the docket and the progress rail.
+ */
+
+/* ------------------------------------------------------------- docket */
+
+/*
+ * The customer's copy of the kitchen ticket. The kitchen works off dockets, so
+ * all three pages share one — torn edges, tabular figures. One object across
+ * three pages instead of three different summary panels.
+ */
+.docket {
+  position: relative;
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: var(--s-6) var(--s-5);
+  box-shadow: var(--shadow-md);
+}
+
+/* The torn edge: a row of notches masked out of the card. */
+.docket-tear {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background-image: radial-gradient(
+    circle at 6px 0,
+    var(--bg) 6px,
+    transparent 6.5px
+  );
+  background-size: 18px 10px;
+  background-repeat: repeat-x;
+}
+
+.docket-tear-top { top: -1px; }
+.docket-tear-bottom { bottom: -1px; transform: rotate(180deg); }
+
+.docket-head {
+  text-align: center;
+  padding-bottom: var(--s-4);
+  border-bottom: 1px dashed var(--line-strong);
+}
+
+.docket-title { color: var(--ink-muted); }
+
+.docket-ref {
+  font-size: var(--t-xl);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin-top: var(--s-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.docket-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  margin: var(--s-4) 0 0;
+  padding-bottom: var(--s-4);
+  border-bottom: 1px dashed var(--line-strong);
+  font-size: var(--t-xs);
+}
+
+.docket-meta div { display: flex; gap: var(--s-2); }
+
+.docket-meta dt {
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+  font-weight: 700;
+}
+
+.docket-meta dd { margin: 0; font-weight: 600; }
+
+.docket-lines {
+  list-style: none;
+  margin: 0;
+  padding: var(--s-4) 0;
+}
+
+.docket-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  padding: var(--s-2) 0;
+}
+
+.docket-qty {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--brand);
+  min-width: 26px;
+}
+
+.docket-body { flex: 1; min-width: 0; }
+
+.docket-name { display: block; font-weight: 600; font-size: var(--t-sm); }
+
+.docket-mods,
+.docket-note {
+  display: block;
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  margin-top: 1px;
+}
+
+.docket-note { color: var(--brand); }
+
+.docket-amount {
+  font-weight: 700;
+  font-size: var(--t-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.docket-totals {
+  padding-top: var(--s-4);
+  border-top: 1px dashed var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.docket-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--t-sm);
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.docket-foot {
+  margin-top: var(--s-4);
+  padding-top: var(--s-4);
+  border-top: 1px dashed var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+/* ------------------------------------------------------------- progress */
+
+.progress { position: relative; }
+
+.progress-rail {
+  position: absolute;
+  top: 21px;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: var(--line);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+
+/* GSAP animates --fill; the width follows it. */
+.progress-fill {
+  --fill: 0%;
+  display: block;
+  width: var(--fill);
+  height: 100%;
+  background: var(--brand);
+  border-radius: var(--r-pill);
+}
+
+.progress-steps {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  text-align: center;
+}
+
+.progress-node {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  background: var(--surface-raised);
+  color: var(--ink-faint);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.progress-node.is-done {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--on-brand);
+}
+
+.progress-node.is-current {
+  border-color: var(--brand);
+  color: var(--brand);
+  /* A soft halo, so a page left open still reads as live. */
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand) 45%, transparent);
+  animation: progress-pulse 2.2s ease-out infinite;
+}
+
+@keyframes progress-pulse {
+  70% {
+    box-shadow: 0 0 0 14px color-mix(in srgb, var(--brand) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand) 0%, transparent);
+  }
+}
+
+.progress-label {
+  font-size: var(--t-xs);
+  font-weight: 700;
+  color: var(--ink-muted);
+  max-width: 12ch;
+}
+
+.progress-step.is-current .progress-label { color: var(--ink); }
+
+.progress-time {
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-blurb {
+  margin-top: var(--s-5);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+  color: var(--ink-muted);
+  font-size: var(--t-sm);
+}
+
+.progress-cancelled {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  border-radius: var(--r-card);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.progress-cancelled-mark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.progress-cancelled p {
+  color: inherit;
+  opacity: 0.85;
+  font-size: var(--t-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-node.is-current { animation: none; }
+}
+
+/* Vertical on a phone: five labels will not sit side by side. */
+@media (max-width: 720px) {
+  .progress-rail {
+    top: 8%;
+    bottom: 8%;
+    left: 21px;
+    right: auto;
+    width: 3px;
+    height: auto;
+  }
+
+  .progress-fill {
+    width: 100%;
+    height: var(--fill);
+  }
+
+  .progress-steps {
+    grid-template-columns: 1fr;
+    gap: var(--s-4);
+  }
+
+  .progress-step {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: var(--s-4);
+  }
+
+  .progress-label { max-width: none; flex: 1; }
+}
+
+/* ------------------------------------------------------------- checkout */
+
+.checkout { padding-bottom: var(--s-8); }
+
+.checkout-masthead {
+  padding: var(--s-8) var(--s-5) var(--s-6);
+  max-width: 760px;
+}
+
+.checkout-kicker,
+.track-kicker,
+.confirm-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  color: var(--brand);
+  margin-bottom: var(--s-4);
+}
+
+.checkout-kicker::before,
+.track-kicker::before {
+  content: '';
+  width: 38px;
+  height: 3px;
+  background: var(--brand);
+}
+
+.checkout-title,
+.track-title {
+  font-size: clamp(2.25rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+  margin-bottom: var(--s-4);
+}
+
+.checkout-lede,
+.track-lede {
+  color: var(--ink-muted);
+  font-size: var(--t-lg);
+  max-width: 52ch;
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.9fr);
+  gap: var(--s-6);
+  align-items: start;
+  padding: 0 var(--s-5);
+}
+
+.checkout-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.checkout-step {
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: var(--s-5);
+}
+
+.checkout-step-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
+}
+
+.checkout-step-index { color: var(--brand); }
+
+.checkout-step-head h2 {
+  font-size: var(--t-xl);
+  font-weight: 800;
+  letter-spacing: var(--track-tight);
+}
+
+/* Order type ----------------------------------------------------------- */
+
+.type-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s-3);
+}
+
+.type-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-5) var(--s-3);
+  border: 2px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.type-option:hover { border-color: var(--line-strong); }
+
+.type-option input { position: absolute; opacity: 0; pointer-events: none; }
+
+.type-option svg {
+  width: 24px;
+  height: 24px;
+  color: var(--ink-muted);
+  transition: color 160ms ease;
+}
+
+.type-option.is-current {
+  border-color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 7%, transparent);
+}
+
+.type-option.is-current svg { color: var(--brand); }
+
+.type-label { font-weight: 700; font-size: var(--t-sm); }
+.type-hint { font-size: var(--t-xs); color: var(--ink-faint); }
+
+/* Aside ---------------------------------------------------------------- */
+
+.checkout-aside {
+  position: sticky;
+  top: calc(var(--header-h) + var(--s-4));
+}
+
+.checkout-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.checkout-total b {
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: var(--track-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.checkout-fineprint {
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.checkout-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  text-align: center;
+  padding: var(--s-8) var(--s-5);
+  color: var(--ink-muted);
+}
+
+.checkout-empty svg {
+  width: 44px;
+  height: 44px;
+  color: var(--ink-faint);
+  margin-bottom: var(--s-2);
+}
+
+.checkout-empty h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: var(--track-tight);
+  color: var(--ink);
+}
+
+.checkout-empty .btn { margin-top: var(--s-4); }
+
+/* ------------------------------------------------------------- confirm */
+
+.confirm {
+  max-width: 880px;
+  margin-inline: auto;
+  padding: var(--s-8) var(--s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+}
+
+.confirm-head { text-align: center; }
+
+.confirm-mark {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto var(--s-5);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ok) 14%, transparent);
+  color: var(--ok);
+}
+
+.confirm-mark svg { width: 38px; height: 38px; }
+
+.confirm-kicker { justify-content: center; }
+
+.confirm-number {
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--s-4);
+}
+
+.confirm-lede {
+  color: var(--ink-muted);
+  max-width: 46ch;
+  margin: 0 auto var(--s-5);
+}
+
+.confirm-actions {
+  display: flex;
+  gap: var(--s-3);
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.confirm-panel {
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: var(--s-6) var(--s-5);
+}
+
+/* The docket brings its own frame. */
+.confirm-docket {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* ------------------------------------------------------------- track */
+
+.track { padding-bottom: var(--s-8); }
+
+.track-masthead {
+  max-width: 720px;
+  margin-inline: auto;
+  padding: var(--s-8) var(--s-5) var(--s-6);
+}
+
+.track-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: var(--s-3);
+  align-items: end;
+  margin-top: var(--s-6);
+}
+
+.track-error { margin-top: var(--s-4); }
+
+.track-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+  padding: var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  color: var(--ink-muted);
+  font-size: var(--t-sm);
+}
+
+.track-hint svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.track-result {
+  max-width: 880px;
+  margin-inline: auto;
+  padding: 0 var(--s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.track-result-head {
+  text-align: center;
+  margin-bottom: var(--s-6);
+}
+
+.track-result-head .label { color: var(--brand); }
+
+.track-result-head h2 {
+  font-size: var(--t-2xl);
+  font-weight: 900;
+  letter-spacing: var(--track-tight);
+  font-variant-numeric: tabular-nums;
+  margin: var(--s-2) 0;
+}
+
+.track-placed { font-size: var(--t-xs); color: var(--ink-faint); }
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 1000px) {
+  .checkout-grid { grid-template-columns: 1fr; }
+  .checkout-aside { position: static; }
+}
+
+@media (max-width: 720px) {
+  .checkout-masthead,
+  .track-masthead { padding-inline: var(--s-4); }
+
+  .checkout-grid { padding-inline: var(--s-4); }
+  .type-picker { grid-template-columns: 1fr; }
+
+  .type-option {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .type-hint { margin-left: auto; }
+
+  .track-form { grid-template-columns: 1fr; }
+  .track-result { padding-inline: var(--s-4); }
+  .confirm { padding-inline: var(--s-4); }
+}
+
+/* ------------------------------------------------------------- payment */
+
+.confirm-payment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.confirm-pay {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+}
+
+.confirm-pay b {
+  display: block;
+  font-size: var(--t-2xl);
+  font-weight: 900;
+  letter-spacing: var(--track-tight);
+  line-height: 1.05;
+  margin-top: var(--s-1);
+}
+
+.confirm-pay p {
+  margin-top: var(--s-2);
+  color: var(--ink-muted);
+  font-size: var(--t-sm);
+  max-width: 34ch;
+}
+
+.confirm-pay .btn { flex-shrink: 0; }
+
+/* Used by the pay button and the payment-callback page while they wait. */
+.spin { animation: spin 0.9s linear infinite; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin { animation-duration: 2.4s; }
+}
