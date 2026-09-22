@@ -1,0 +1,18 @@
+# React Router owns every path below /, so each one has to fall through to
+# the app shell rather than Netlify's 404.
+#
+# It matters most for /payment/callback: Paystack returns the customer there
+# as a full cross-site navigation, requested cold from the server with no
+# router in memory to catch it. A 404 at that moment is indistinguishable,
+# from the customer's side, from a payment that took their money and vanished.
+#
+# This duplicates the rule in netlify.toml on purpose. netlify.toml lives at
+# the repo root and is only read on a git-connected build — it is NOT part of
+# dist/, so a manual drag-and-drop deploy of the built folder would ship
+# without any redirect at all. This file is copied into dist/ by Vite, so the
+# rule travels with the build either way.
+#
+# Netlify gives netlify.toml precedence where the two overlap. They are the
+# same rule, so there is nothing to conflict.
+
+/*    /index.html   200
