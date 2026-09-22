@@ -21,7 +21,9 @@ title, description, canonical and robots tag when the route changes.
 disagree about the site's address.
 
 **`public/og/share.jpg`** is the 1200×630 card people see when the link is
-pasted into WhatsApp, Instagram DMs, Facebook or X.
+pasted into WhatsApp, Instagram DMs, Facebook or X. Regenerate it with
+`npm install --no-save sharp && node scripts/og-card.mjs` after changing the
+name, strapline, zones or phone number.
 
 ### Which pages are indexed
 
@@ -132,6 +134,24 @@ After deploying:
   [developers.facebook.com/tools/debug](https://developers.facebook.com/tools/debug/)
   and hit *Scrape Again*. Do this after any change to `share.jpg`, because
   Facebook caches the old image for days otherwise.
+
+  **If no image shows when you paste the link**, the cache is almost always
+  the reason rather than a broken tag — the scraper stored a result from
+  before the image existed and will not look again for about a week. Check the
+  tags are really there with
+
+  ```
+  curl -A "WhatsApp/2.23.20.0" https://yourdomain/ | grep og:image
+  ```
+
+  and if they are, force a fresh scrape: the Facebook debugger above covers
+  Facebook and Instagram, and WhatsApp has no debugger but treats a URL with a
+  query string as a new link, so `https://yourdomain/?v=2` previews
+  immediately. The bare URL clears itself in a few days.
+
+  Keep `share.jpg` a **baseline** JPEG, not progressive — some scrapers,
+  WhatsApp included, are unreliable with progressive ones. `scripts/og-card.mjs`
+  already forces this.
 - **robots and sitemap** — open `/robots.txt` and `/sitemap.xml` directly and
   confirm they name the real domain, not `sbjfoods.netlify.app`.
 - **Per-route titles** — open `/menu` and check the browser tab says
