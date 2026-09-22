@@ -40,18 +40,33 @@ leave a stale key baked into the bundle and break push silently.
 Verified against the live API on 2026-09-22 — it is healthy, the database is
 up, Paystack is enabled (test keys) and push is configured.
 
-**One thing blocks the deploy today: CORS.** The API currently returns an
-`access-control-allow-origin` header for `http://localhost:5173` but none for
-a Netlify origin, so `CORS_ORIGINS` on Railway is still the local default. As
-it stands the deployed site will load its shell and then fail every API call —
-an empty menu, with the real reason only visible in the browser console.
+**One thing blocks the deploy: CORS.** `CORS_ORIGINS` on Railway is still the
+local default, so the deployed site loads its shell and then fails every API
+call — an empty menu, with the real reason only visible in the console.
+
+The symptom is easy to misread. The preflight comes back `204` carrying
+`access-control-allow-credentials`, `access-control-allow-methods` and
+`access-control-allow-headers`, which looks like a working CORS response. The
+one header missing is `access-control-allow-origin`: Nest's CORS layer omits
+it entirely when the origin is not on the allowlist, rather than returning an
+error. So a `204` here still means *rejected*.
 
 Set these three on **Railway**, not in `backend/.env` (that file is local only
-and is not deployed):
+and is not deployed). The site is live at `https://sbjfoods.netlify.app`, so
+these are the literal values:
 
-1. **`CORS_ORIGINS`** — add the Netlify origin, comma-separated:
-   `https://your-site.netlify.app,http://localhost:5173,http://localhost:5174`
-2. **`PAYSTACK_CALLBACK_URL`** — `https://your-site.netlify.app/payment/callback`.
+1. **`CORS_ORIGINS`** — paste exactly this, no spaces after the commas and no
+   trailing slash on any entry:
+
+   ```text
+   https://sbjfoods.netlify.app,http://localhost:5173,http://localhost:5174
+   ```
+
+   The match is an exact string compare against the browser's `Origin` header.
+   `https://sbjfoods.netlify.app/` with a trailing slash does not match, and
+   neither does the `http://` spelling.
+
+2. **`PAYSTACK_CALLBACK_URL`** — `https://sbjfoods.netlify.app/payment/callback`.
    It still points at localhost, so a live customer would be redirected to
    their own machine after paying.
 3. **`PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY`** — still `sk_test_` /
@@ -64,8 +79,24 @@ handshake. That asymmetry is worth knowing: if the site goes live before
 `CORS_ORIGINS` is fixed, order updates will stream in fine while every REST
 call fails, which looks like a very confusing partial outage.
 
-Deploy previews get their own URL per pull request. If you want previews to
-work against the API, add those origins to `CORS_ORIGINS` too.
+Deploy previews get their own URL per pull request
+(`https://deploy-preview-7--sbjfoods.netlify.app`), and an exact-match
+allowlist cannot cover them. Either add each preview origin by hand, or change
+`main.ts` to take a predicate instead of an array. Nothing here needs it yet.
+
+### Checking it from the terminal
+
+Whether the fix has landed is one command — no browser needed:
+
+```bash
+curl -sD - -o /dev/null -X OPTIONS \
+  -H 'Origin: https://sbjfoods.netlify.app' \
+  -H 'Access-Control-Request-Method: GET' \
+  https://sbjbackend-production.up.railway.app/api/testimonials \
+  | grep -i access-control-allow-origin
+```
+
+One line back means it works. No output means the origin is still rejected.
 
 ## 4. What the config does, and why
 
