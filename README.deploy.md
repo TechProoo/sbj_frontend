@@ -17,38 +17,55 @@ This repository *is* the site root, so leave the base directory empty.
 
 ## 2. Environment variables
 
-Set these under **Site configuration → Environment variables**.
+`VITE_API_URL` is already set in `netlify.toml`, pointing at the API on
+Railway:
 
-| Variable | Value |
-| --- | --- |
-| `VITE_API_URL` | `https://your-api-host/api` |
-| `VITE_VAPID_PUBLIC_KEY` | the public half of the API's VAPID pair |
+```text
+https://sbjbackend-production.up.railway.app/api
+```
 
-**These are compiled into the bundle, not read at runtime.** Changing either
-one needs a fresh deploy — clearing the cache and redeploying, not just
-restarting. Anything not prefixed `VITE_` is invisible to the browser, which
-is why no secret belongs here.
+So there is nothing to add in the Netlify UI. If you move the API, change it
+there rather than in the UI, so the value lives in one place.
 
-`VITE_VAPID_PUBLIC_KEY` is optional: left unset, the app asks the API at
-`/push/key` instead. Setting it saves one request on the first subscribe.
+**It is compiled into the bundle, not read at runtime.** Changing it needs a
+fresh deploy, not just a restart. Anything not prefixed `VITE_` is invisible
+to the browser, which is why no secret belongs here.
 
-## 3. Three things to change on the API side
+`VITE_VAPID_PUBLIC_KEY` is intentionally left unset. The app then asks the API
+at `/push/key` for it, which means rotating the server's VAPID pair cannot
+leave a stale key baked into the bundle and break push silently.
 
-The storefront cannot work alone. Once you know the Netlify URL:
+## 3. Before this works: the API side
 
-1. **`CORS_ORIGINS`** in `backend/.env` must include the deployed origin, e.g.
-   `https://sbjfoods.netlify.app`. Without it every API call fails CORS and the
-   menu never loads.
-2. **`PAYSTACK_CALLBACK_URL`** must become
-   `https://sbjfoods.netlify.app/payment/callback`. It still points at
-   localhost, so a live customer would be redirected to their own machine
-   after paying.
-3. **The API must be served over HTTPS.** Netlify serves the site over TLS, and
-   a browser blocks a plain-HTTP request or websocket from an HTTPS page as
-   mixed content. This applies to the realtime gateway too.
+Verified against the live API on 2026-09-22 — it is healthy, the database is
+up, Paystack is enabled (test keys) and push is configured.
+
+**One thing blocks the deploy today: CORS.** The API currently returns an
+`access-control-allow-origin` header for `http://localhost:5173` but none for
+a Netlify origin, so `CORS_ORIGINS` on Railway is still the local default. As
+it stands the deployed site will load its shell and then fail every API call —
+an empty menu, with the real reason only visible in the browser console.
+
+Set these three on **Railway**, not in `backend/.env` (that file is local only
+and is not deployed):
+
+1. **`CORS_ORIGINS`** — add the Netlify origin, comma-separated:
+   `https://your-site.netlify.app,http://localhost:5173,http://localhost:5174`
+2. **`PAYSTACK_CALLBACK_URL`** — `https://your-site.netlify.app/payment/callback`.
+   It still points at localhost, so a live customer would be redirected to
+   their own machine after paying.
+3. **`PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY`** — still `sk_test_` /
+   `pk_test_`. Fine for testing; swap for the live pair before taking real
+   money.
+
+The websocket needs nothing. The gateway sets its own CORS to reflect any
+origin, so realtime already works from a Netlify origin — verified by
+handshake. That asymmetry is worth knowing: if the site goes live before
+`CORS_ORIGINS` is fixed, order updates will stream in fine while every REST
+call fails, which looks like a very confusing partial outage.
 
 Deploy previews get their own URL per pull request. If you want previews to
-work against the API, add the wildcard to `CORS_ORIGINS` as well.
+work against the API, add those origins to `CORS_ORIGINS` too.
 
 ## 4. What the config does, and why
 

@@ -13,6 +13,19 @@
   # default image cannot break the build without warning.
   NODE_VERSION = "22"
 
+  # The deployed API on Railway. No trailing slash — every call is built as
+  # `${VITE_API_URL}${path}` and the paths carry their own leading slash.
+  #
+  # Set here rather than in the Netlify UI so the site builds correctly from a
+  # clean clone with nothing to remember. It is a public URL, not a secret.
+  # If you would rather manage it in the UI, delete it here first so there is
+  # only one place it can come from.
+  VITE_API_URL = "https://sbjbackend-production.up.railway.app/api"
+
+  # VITE_VAPID_PUBLIC_KEY is deliberately NOT set. Left unset, pwa.ts asks the
+  # API at /push/key instead, so rotating the server's VAPID pair cannot leave
+  # a stale key baked into the bundle and silently break push.
+
 # ---------------------------------------------------------------- routing
 
 # React Router owns every path below. Without this, a direct hit on /menu or

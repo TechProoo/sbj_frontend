@@ -161,7 +161,7 @@ export function HomePage({
               <LuTriangleAlert aria-hidden="true" />
               <div>
                 <strong>{error}</strong>
-                <p>Make sure the API is running on http://localhost:4000.</p>
+                <p>That is on our side, not yours. Give it a moment and refresh.</p>
               </div>
             </div>
           </div>
