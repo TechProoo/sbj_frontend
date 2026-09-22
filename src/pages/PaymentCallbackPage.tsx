@@ -22,9 +22,13 @@ export function PaymentCallbackPage() {
   const [phase, setPhase] = useState<Phase>('checking');
   const [result, setResult] = useState<PaymentResult | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  // React 18 mounts twice in development; verifying twice is harmless but the
-  // duplicate request is noise.
+
+  // StrictMode mounts this twice in development. Asking only once is right —
+  // but the answer must NOT also be gated on the mount that asked, or the
+  // second mount waits forever on a reply the first one threw away. The
+  // request is deduplicated; the result is always applied.
   const asked = useRef(false);
+  const timer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (!reference) {
@@ -35,24 +39,20 @@ export function PaymentCallbackPage() {
     if (asked.current) return;
     asked.current = true;
 
-    let live = true;
-
     api
       .verifyPayment(reference)
       .then((payment) => {
-        if (!live) return;
         setResult(payment);
         setPhase(payment.paid ? 'paid' : 'unpaid');
 
         if (payment.paid) {
           // Let the tick land, then hand over to the real receipt.
-          window.setTimeout(() => {
+          timer.current = window.setTimeout(() => {
             navigate(`/order/${payment.orderId}`, { replace: true });
           }, 1600);
         }
       })
       .catch((error: unknown) => {
-        if (!live) return;
         setPhase('error');
         setMessage(
           error instanceof ApiError
@@ -60,11 +60,10 @@ export function PaymentCallbackPage() {
             : 'We could not reach the payment service.',
         );
       });
-
-    return () => {
-      live = false;
-    };
   }, [reference, navigate]);
+
+  // Only the pending redirect needs undoing; the verify result does not.
+  useEffect(() => () => window.clearTimeout(timer.current), []);
 
   if (phase === 'checking') {
     return (
