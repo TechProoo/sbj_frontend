@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { LuMegaphone, LuTriangleAlert, LuUtensils, LuX } from "react-icons/lu";
 import { api, ApiError } from "../lib/api";
+import { useSeo } from "../lib/seo";
 import type { FeedPost } from "../lib/types";
 
 const FILTERS = [
@@ -37,6 +38,13 @@ function timeAgo(iso: string): string {
  * magazine spread rather than a social timeline.
  */
 export function FeedPage() {
+  useSeo({
+    title: "What's cooking",
+    description:
+      "Today's specials, promos and what is coming out of the SBJ kitchen right now.",
+    path: '/feed',
+  });
+
   const [posts, setPosts] = useState<FeedPost[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("ALL");

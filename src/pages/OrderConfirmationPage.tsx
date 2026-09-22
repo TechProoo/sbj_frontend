@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { useSeo } from '../lib/seo';
 import { useGSAP } from '@gsap/react';
 import {
   LuCircleCheck,
@@ -30,6 +31,9 @@ const TYPE_COPY: Record<string, string> = {
 };
 
 export function OrderConfirmationPage() {
+  // An order URL is somebody's receipt — never index it.
+  useSeo({ title: 'Your order', noIndex: true });
+
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   // Checkout hands the order over in router state, so the confirmation renders

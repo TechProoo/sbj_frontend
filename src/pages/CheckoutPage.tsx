@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useSeo } from '../lib/seo';
 import { useGSAP } from '@gsap/react';
 import {
   LuBanknote,
@@ -105,6 +106,8 @@ const INITIAL: FormState = {
 };
 
 export function CheckoutPage() {
+  useSeo({ title: 'Checkout', path: '/checkout', noIndex: true });
+
   const { lines, subtotal, clear } = useCart();
   const navigate = useNavigate();
   const [form, setForm] = useState<FormState>(INITIAL);

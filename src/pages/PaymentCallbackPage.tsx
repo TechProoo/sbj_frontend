@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { LuCircleCheck, LuCircleX, LuLoaderCircle } from 'react-icons/lu';
 import { api, ApiError } from '../lib/api';
+import { useSeo } from '../lib/seo';
 import { formatMoney } from '../lib/format';
 import type { PaymentResult } from '../lib/types';
 
@@ -15,6 +16,9 @@ type Phase = 'checking' | 'paid' | 'unpaid' | 'error';
 /// same payment a second earlier; both paths write the same row, so whichever
 /// arrives second is a no-op.
 export function PaymentCallbackPage() {
+  // A payment reference in the URL is private to one customer.
+  useSeo({ title: 'Payment', noIndex: true });
+
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const reference = params.get('reference') ?? params.get('trxref');

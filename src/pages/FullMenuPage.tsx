@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useSeo } from '../lib/seo';
 import { useGSAP } from '@gsap/react';
 import { LuBookmark, LuSearch, LuTriangleAlert, LuX } from 'react-icons/lu';
 import { ItemCard } from '../components/ItemCard';
@@ -31,6 +32,13 @@ export function FullMenuPage({
   loading: boolean;
   error: string | null;
 }) {
+  useSeo({
+    title: 'The full menu',
+    description:
+      'Every dish SBJ cooks — jollof and fried rice, ofada, swallow and soup, shawarma, suya, small chops and drinks. Plates from ₦200, delivered across Lagos.',
+    path: '/menu',
+  });
+
   // `?q=` lets the phone header hand its search term over to this page.
   const initialQuery = new URLSearchParams(window.location.search).get('q') ?? '';
   const [search, setSearch] = useState(initialQuery);

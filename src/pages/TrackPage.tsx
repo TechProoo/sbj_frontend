@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { useSeo } from '../lib/seo';
 import { useGSAP } from '@gsap/react';
 import { LuChevronRight, LuSearch, LuTriangleAlert } from 'react-icons/lu';
 import { OrderDocket } from '../components/OrderDocket';
@@ -19,6 +20,15 @@ import { watchOrder } from '../lib/socket';
 import type { OrderStatus, TrackedOrder } from '../lib/types';
 
 export function TrackPage() {
+  useSeo({
+    title: 'Track your order',
+    description:
+      'Follow your SBJ order from the kitchen to your door with your order number and phone number.',
+    path: '/track',
+    // A tracking lookup is per-customer; there is nothing here to index.
+    noIndex: true,
+  });
+
   const [orderNumber, setOrderNumber] = useState('');
   const [phone, setPhone] = useState('');
   const [order, setOrder] = useState<TrackedOrder | null>(null);

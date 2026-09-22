@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useSeo } from "../lib/seo";
 import { LuTriangleAlert } from "react-icons/lu";
 import { CategoryRow } from "../components/CategoryRow";
 import { ItemCard } from "../components/ItemCard";
@@ -35,6 +36,12 @@ export function HomePage({
   loading: boolean;
   error: string | null;
 }) {
+  useSeo({
+    description:
+      'Jollof, swallow and soup, shawarma and small chops, cooked to order in Lagos. Delivery to Ikeja, Yaba, Surulere and Lekki, or collect in store.',
+    path: '/',
+  });
+
   const [selected, setSelected] = useState<MenuItem | null>(null);
   const navigate = useNavigate();
 

@@ -22,6 +22,19 @@
   # only one place it can come from.
   VITE_API_URL = "https://sbjbackend-production.up.railway.app/api"
 
+  # >>> CHANGE THIS TO THE REAL DOMAIN BEFORE LAUNCH <<<
+  #
+  # Every canonical URL, og:url, sitemap entry and the JSON-LD listing is
+  # built from this. It must be the exact origin people actually visit —
+  # scheme included, no trailing slash, and the apex-vs-www spelling you
+  # intend to keep. Point it at the wrong host and you are telling Google
+  # the real site is a copy of somewhere else, which is worse than leaving
+  # SEO off entirely.
+  #
+  # Once a custom domain is attached, change it here (or override it in the
+  # Netlify UI) and redeploy — it is baked in at build time.
+  VITE_SITE_URL = "https://sbjfoods.netlify.app"
+
   # VITE_VAPID_PUBLIC_KEY is deliberately NOT set. Left unset, pwa.ts asks the
   # API at /push/key instead, so rotating the server's VAPID pair cannot leave
   # a stale key baked into the bundle and silently break push.
@@ -88,6 +101,27 @@
   [headers.values]
     Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
 
+# robots.txt and sitemap.xml are generated at build time from VITE_SITE_URL
+# (see vite.config.ts). Short cache so a domain change reaches crawlers on the
+# next deploy rather than a day later.
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+# The share card is fetched by WhatsApp, Facebook and X, which cache it hard
+# on their side anyway. Long max-age here saves the repeat scrape.
+[[headers]]
+  for = "/og/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
 # ---------------------------------------------------------------- security
 
 # No Content-Security-Policy here on purpose. A correct one has to name the
@@ -100,4 +134,7 @@
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    # geolocation is allowed for `self` only: checkout's "use my location"
+    # button calls navigator.geolocation to drop a delivery pin, and
+    # `geolocation=()` would block our own page as well as third parties.
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self), interest-cohort=()"
