@@ -69,12 +69,17 @@ export interface CreateOrderPayload {
     modifierIds?: string[];
     notes?: string;
   }[];
+  /// Either words or a pin is enough — the API requires `line1`/`city` only
+  /// when no coordinates come with them.
   address?: {
-    line1: string;
+    line1?: string;
     line2?: string;
-    city: string;
+    city?: string;
     state?: string;
     landmark?: string;
+    latitude?: number;
+    longitude?: number;
+    accuracyMeters?: number;
   };
   tableNumber?: string;
   paymentMethod?: string;

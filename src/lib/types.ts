@@ -111,7 +111,19 @@ export interface Order {
   paymentStatus: PaymentStatus;
   paymentMethod: PaymentMethod | null;
   customerEmail: string | null;
+  address: DeliveryAddress | null;
   items: OrderItem[];
+}
+
+export interface DeliveryAddress {
+  line1: string;
+  city: string;
+  landmark: string | null;
+  /// Decimal columns reach the browser as strings. Null unless the customer
+  /// shared a pin rather than typing.
+  latitude: string | null;
+  longitude: string | null;
+  accuracyMeters: number | null;
 }
 
 export interface TrackedOrder {

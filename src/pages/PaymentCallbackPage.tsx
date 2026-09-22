@@ -48,7 +48,12 @@ export function PaymentCallbackPage() {
         if (payment.paid) {
           // Let the tick land, then hand over to the real receipt.
           timer.current = window.setTimeout(() => {
-            navigate(`/order/${payment.orderId}`, { replace: true });
+            // `justPlaced` is what tells the receipt to remind them to keep
+            // their order number — this is the one moment it matters.
+            navigate(`/order/${payment.orderId}`, {
+              replace: true,
+              state: { justPlaced: true },
+            });
           }, 1600);
         }
       })
@@ -84,7 +89,11 @@ export function PaymentCallbackPage() {
           {formatMoney(result.amount / 100)} for order{' '}
           <strong>{result.orderNumber}</strong>. Taking you to your receipt…
         </p>
-        <Link className="btn btn-primary" to={`/order/${result.orderId}`}>
+        <Link
+          className="btn btn-primary"
+          to={`/order/${result.orderId}`}
+          state={{ justPlaced: true }}
+        >
           View my order
         </Link>
       </div>

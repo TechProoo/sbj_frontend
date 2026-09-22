@@ -4,7 +4,11 @@ import { useGSAP } from '@gsap/react';
 import {
   LuBanknote,
   LuBike,
+  LuCircleCheck,
   LuCreditCard,
+  LuLoaderCircle,
+  LuMapPin,
+  LuPencil,
   LuShoppingBag,
   LuTriangleAlert,
   LuUtensils,
@@ -13,6 +17,14 @@ import { OrderDocket } from '../components/OrderDocket';
 import { useCart } from '../context/CartContext';
 import { api, ApiError, type CreateOrderPayload } from '../lib/api';
 import { formatMoney } from '../lib/format';
+import { rememberOrder } from '../lib/recentOrders';
+import {
+  accuracyNote,
+  canLocate,
+  GeoError,
+  getPin,
+  type Pin,
+} from '../lib/geolocation';
 import { DUR, EASE, gsap, prefersReducedMotion, splitLines } from '../lib/motion';
 import type { OrderType, PaymentConfig } from '../lib/types';
 
@@ -75,6 +87,10 @@ interface FormState {
   payment: PayChoice;
 }
 
+/// Two ways to say where you are. Typing is the default because it always
+/// works; sharing a pin is better when the browser allows it.
+type AddressMode = 'type' | 'pin';
+
 const INITIAL: FormState = {
   customerName: '',
   customerPhone: '',
@@ -98,6 +114,14 @@ export function CheckoutPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [payments, setPayments] = useState<PaymentConfig | null>(null);
+
+  const [addressMode, setAddressMode] = useState<AddressMode>('type');
+  const [pin, setPin] = useState<Pin | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
+  // Checked once: an insecure origin refuses geolocation outright, and a
+  // button that cannot work should not be offered at all.
+  const [locatable] = useState(canLocate);
 
   const root = useRef<HTMLDivElement>(null);
 
@@ -135,6 +159,29 @@ export function CheckoutPage() {
   const hasLocationStep = form.type === 'DELIVERY' || form.type === 'DINE_IN';
   const payStepIndex = hasLocationStep ? '04' : '03';
   const notesStepIndex = hasLocationStep ? '05' : '04';
+
+  const usingPin = form.type === 'DELIVERY' && addressMode === 'pin';
+
+  const share = async () => {
+    setGeoError(null);
+    setLocating(true);
+    try {
+      const found = await getPin();
+      setPin(found);
+      // A pin satisfies the address requirement, so clear any stale complaint
+      // about the fields it replaces.
+      setErrors((current) => ({ ...current, line1: undefined, city: undefined }));
+    } catch (error) {
+      setPin(null);
+      setGeoError(
+        error instanceof GeoError
+          ? error.message
+          : 'Could not get your location. Type the address instead.',
+      );
+    } finally {
+      setLocating(false);
+    }
+  };
 
   const deliveryFee = form.type === 'DELIVERY' ? DELIVERY_FEE : 0;
   const total = subtotal + deliveryFee;
@@ -241,14 +288,25 @@ export function CheckoutPage() {
       next.customerEmail = 'We need an email to send your payment receipt to';
     }
     if (form.type === 'DELIVERY') {
-      if (form.line1.trim().length < 3) next.line1 = 'We need a street address';
-      if (form.city.trim().length < 2) next.city = 'Which city or area?';
+      if (usingPin) {
+        // The pin is the address in this mode, so it is the thing to insist on.
+        if (!pin) {
+          setGeoError('Share your location, or switch to typing the address.');
+        }
+      } else {
+        if (form.line1.trim().length < 3) {
+          next.line1 = 'We need a street address';
+        }
+        if (form.city.trim().length < 2) next.city = 'Which city or area?';
+      }
     }
     if (form.type === 'DINE_IN' && !form.tableNumber.trim()) {
       next.tableNumber = 'Which table are you on?';
     }
 
     setErrors(next);
+
+    if (form.type === 'DELIVERY' && usingPin && !pin) return false;
 
     // Take the person to the first problem rather than leaving them to hunt.
     const firstKey = Object.keys(next)[0];
@@ -293,9 +351,17 @@ export function CheckoutPage() {
     if (form.notes.trim()) payload.notes = form.notes.trim();
     if (form.type === 'DELIVERY') {
       payload.address = {
-        line1: form.line1.trim(),
-        city: form.city.trim(),
         ...(form.landmark.trim() ? { landmark: form.landmark.trim() } : {}),
+        ...(usingPin && pin
+          ? {
+              latitude: pin.latitude,
+              longitude: pin.longitude,
+              accuracyMeters: pin.accuracyMeters,
+              // Anything they typed before switching still helps the rider.
+              ...(form.line1.trim() ? { line1: form.line1.trim() } : {}),
+              ...(form.city.trim() ? { city: form.city.trim() } : {}),
+            }
+          : { line1: form.line1.trim(), city: form.city.trim() }),
       };
     }
     if (form.type === 'DINE_IN') payload.tableNumber = form.tableNumber.trim();
@@ -306,9 +372,21 @@ export function CheckoutPage() {
     try {
       const order = await api.createOrder(payload);
 
+      // Written down before anything can navigate away. Paying leaves the site
+      // for Paystack, and without this the order number goes with it.
+      rememberOrder({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        phone: payload.customerPhone,
+        total: order.total,
+        placedAt: order.placedAt,
+      });
+
       if (!payOnline) {
         clear();
-        navigate(`/order/${order.id}`, { state: { order } });
+        // Paying on delivery needs the same reminder: the order number is no
+        // less easy to lose for having not been paid for yet.
+        navigate(`/order/${order.id}`, { state: { order, justPlaced: true } });
         return;
       }
 
@@ -461,8 +539,81 @@ export function CheckoutPage() {
 
               {form.type === 'DELIVERY' ? (
                 <div className="card-stack">
+                  {locatable && (
+                    <div className="addr-modes" role="group" aria-label="How to give your address">
+                      <button
+                        type="button"
+                        className={`addr-mode${addressMode === 'type' ? ' is-current' : ''}`}
+                        onClick={() => setAddressMode('type')}
+                        aria-pressed={addressMode === 'type'}
+                      >
+                        <LuPencil aria-hidden="true" />
+                        Type it
+                      </button>
+                      <button
+                        type="button"
+                        className={`addr-mode${addressMode === 'pin' ? ' is-current' : ''}`}
+                        onClick={() => setAddressMode('pin')}
+                        aria-pressed={addressMode === 'pin'}
+                      >
+                        <LuMapPin aria-hidden="true" />
+                        Share my location
+                      </button>
+                    </div>
+                  )}
+
+                  {usingPin && (
+                    <div className="addr-pin">
+                      {pin ? (
+                        <div className="addr-pin-found">
+                          <LuCircleCheck aria-hidden="true" />
+                          <div>
+                            <b>Location shared</b>
+                            <small>{accuracyNote(pin.accuracyMeters)}</small>
+                          </div>
+                          <button
+                            type="button"
+                            className="btn btn-quiet"
+                            onClick={() => void share()}
+                            disabled={locating}
+                          >
+                            Update
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-block addr-pin-get"
+                          onClick={() => void share()}
+                          disabled={locating}
+                        >
+                          {locating ? (
+                            <LuLoaderCircle className="spin" aria-hidden="true" />
+                          ) : (
+                            <LuMapPin aria-hidden="true" />
+                          )}
+                          {locating ? 'Finding you…' : 'Use my current location'}
+                        </button>
+                      )}
+
+                      {geoError && (
+                        <div className="banner banner-error">
+                          <LuTriangleAlert aria-hidden="true" />
+                          <span>{geoError}</span>
+                        </div>
+                      )}
+
+                      <p className="checkout-fineprint">
+                        Your rider gets a map pin to navigate to. A landmark
+                        still helps for gates, floors and estates.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="field">
-                    <label htmlFor="line1">Street address</label>
+                    <label htmlFor="line1">
+                      {usingPin ? 'Street address (optional)' : 'Street address'}
+                    </label>
                     <input
                       id="line1"
                       value={form.line1}
@@ -477,7 +628,9 @@ export function CheckoutPage() {
 
                   <div className="field-row">
                     <div className="field">
-                      <label htmlFor="city">City / area</label>
+                      <label htmlFor="city">
+                        {usingPin ? 'City / area (optional)' : 'City / area'}
+                      </label>
                       <input
                         id="city"
                         value={form.city}
@@ -491,7 +644,9 @@ export function CheckoutPage() {
                     </div>
 
                     <div className="field">
-                      <label htmlFor="landmark">Landmark (optional)</label>
+                      <label htmlFor="landmark">
+                        {usingPin ? 'Landmark / flat' : 'Landmark (optional)'}
+                      </label>
                       <input
                         id="landmark"
                         placeholder="Opposite the filling station"

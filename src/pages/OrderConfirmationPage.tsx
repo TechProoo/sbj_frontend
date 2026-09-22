@@ -5,13 +5,20 @@ import {
   LuCircleCheck,
   LuCreditCard,
   LuLoaderCircle,
+  LuMapPin,
   LuReceipt,
 } from 'react-icons/lu';
+import {
+  KeepDetailsModal,
+  markShown,
+  shouldShow,
+} from '../components/KeepDetailsModal';
 import { OrderDocket } from '../components/OrderDocket';
 import { NotifyToggle } from '../components/NotifyToggle';
 import { OrderProgress } from '../components/OrderProgress';
 import { api, ApiError } from '../lib/api';
 import { formatMoney } from '../lib/format';
+import { rememberOrder } from '../lib/recentOrders';
 import { DUR, EASE, gsap, prefersReducedMotion } from '../lib/motion';
 import { watchOrder } from '../lib/socket';
 import type { Order, OrderStatus, PaymentStatus } from '../lib/types';
@@ -27,7 +34,11 @@ export function OrderConfirmationPage() {
   const location = useLocation();
   // Checkout hands the order over in router state, so the confirmation renders
   // immediately without a second round trip.
-  const initial = (location.state as { order?: Order } | null)?.order ?? null;
+  const state = location.state as
+    | { order?: Order; justPlaced?: boolean }
+    | null;
+  const initial = state?.order ?? null;
+  const justPlaced = state?.justPlaced === true;
 
   const [order, setOrder] = useState<Order | null>(initial);
   const [status, setStatus] = useState<OrderStatus>(
@@ -37,6 +48,7 @@ export function OrderConfirmationPage() {
     initial?.paymentStatus ?? 'UNPAID',
   );
   const [paying, setPaying] = useState(false);
+  const [keepOpen, setKeepOpen] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
   const root = useRef<HTMLDivElement>(null);
 
@@ -58,6 +70,29 @@ export function OrderConfirmationPage() {
       live = false;
     };
   }, [id, order]);
+
+  // Belt and braces: an order reached by link, or fetched fresh after the
+  // Paystack round trip, is remembered here too. Re-recording is an update,
+  // not a duplicate.
+  // Once per order, straight after it is placed — paid online or not. A
+  // refresh keeps the router state, so the "already shown" flag is what stops
+  // it nagging.
+  useEffect(() => {
+    if (!justPlaced || !order || !shouldShow(order.id)) return;
+    setKeepOpen(true);
+    markShown(order.id);
+  }, [justPlaced, order]);
+
+  useEffect(() => {
+    if (!order) return;
+    rememberOrder({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      phone: order.customerPhone,
+      total: order.total,
+      placedAt: order.placedAt,
+    });
+  }, [order]);
 
   useEffect(() => {
     if (!id) return;
@@ -135,6 +170,15 @@ export function OrderConfirmationPage() {
 
   return (
     <div className="confirm" ref={root}>
+      {keepOpen && (
+        <KeepDetailsModal
+          orderNumber={order.orderNumber}
+          phone={order.customerPhone}
+          paid={paymentStatus === 'PAID'}
+          onClose={() => setKeepOpen(false)}
+        />
+      )}
+
       <header className="confirm-head">
         <span className="confirm-mark" aria-hidden="true">
           <LuCircleCheck />
@@ -156,6 +200,23 @@ export function OrderConfirmationPage() {
           </Link>
         </div>
       </header>
+
+      {order.type === 'DELIVERY' && order.address && (
+        <section className="confirm-panel confirm-where">
+          <LuMapPin aria-hidden="true" />
+          <div>
+            <span className="label">Delivering to</span>
+            <p>
+              {order.address.line1}
+              {order.address.city ? `, ${order.address.city}` : ''}
+            </p>
+            {order.address.landmark && <small>{order.address.landmark}</small>}
+            {order.address.latitude && (
+              <small>Your rider has the map pin you shared.</small>
+            )}
+          </div>
+        </section>
+      )}
 
       <section className="confirm-panel confirm-payment">
         {paymentStatus === 'PAID' ? (

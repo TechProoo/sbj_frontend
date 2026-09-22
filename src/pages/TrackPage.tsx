@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useGSAP } from '@gsap/react';
-import { LuSearch, LuTriangleAlert } from 'react-icons/lu';
+import { LuChevronRight, LuSearch, LuTriangleAlert } from 'react-icons/lu';
 import { OrderDocket } from '../components/OrderDocket';
 import { NotifyToggle } from '../components/NotifyToggle';
 import { OrderProgress } from '../components/OrderProgress';
 import { api, ApiError } from '../lib/api';
 import { formatDateTime, formatMoney } from '../lib/format';
+import { clearOrders, useRecentOrders } from '../lib/recentOrders';
 import {
   DUR,
   EASE,
@@ -24,6 +25,38 @@ export function TrackPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+
+  // Orders placed on this device. Guest checkout has no account, so this list
+  // is the only "my orders" the customer has.
+  const recent = useRecentOrders();
+
+  /// Tracking an order we already hold the details for — no typing, and no
+  /// weakening of the rule that the phone number has to match.
+  const lookUp = useCallback(async (number: string, forPhone: string) => {
+    setOrderNumber(number);
+    setPhone(forPhone);
+    setError(null);
+    setLoading(true);
+    try {
+      setOrder(await api.trackOrder(number, forPhone));
+    } catch (err) {
+      setOrder(null);
+      setError(
+        err instanceof ApiError ? err.message : 'Could not find that order.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Arriving with exactly one order remembered, open it rather than asking
+  // the customer to pick from a list of one.
+  const opened = useRef(false);
+  useEffect(() => {
+    if (opened.current || order || recent.length !== 1) return;
+    opened.current = true;
+    void lookUp(recent[0].orderNumber, recent[0].phone);
+  }, [recent, order, lookUp]);
 
   useEffect(() => {
     if (!order) return;
@@ -101,9 +134,53 @@ export function TrackPage() {
         <span className="track-kicker label">Order tracking</span>
         <h1 className="track-title">Where is my food?</h1>
         <p className="track-lede">
-          Enter the order number from your confirmation and the phone number you
-          used. The page then updates itself as the kitchen moves your ticket.
+          Orders you placed on this device are below. For any other one, enter
+          its number and the phone you used — the page then updates itself as
+          the kitchen moves your ticket.
         </p>
+
+        {recent.length > 0 && (
+          <section className="track-recent">
+            <div className="track-recent-head">
+              <span className="label">Your orders</span>
+              <button
+                type="button"
+                className="btn btn-quiet track-recent-clear"
+                onClick={clearOrders}
+              >
+                Clear
+              </button>
+            </div>
+
+            <ul className="track-recent-list">
+              {recent.map((entry) => (
+                <li key={entry.id}>
+                  <button
+                    type="button"
+                    className={`track-recent-item${
+                      order?.orderNumber === entry.orderNumber ? ' is-current' : ''
+                    }`}
+                    onClick={() => void lookUp(entry.orderNumber, entry.phone)}
+                    disabled={loading}
+                  >
+                    <span className="track-recent-main">
+                      <b>{entry.orderNumber}</b>
+                      <small>{formatDateTime(entry.placedAt)}</small>
+                    </span>
+                    <span className="track-recent-total">
+                      {formatMoney(entry.total)}
+                    </span>
+                    <LuChevronRight aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <p className="track-recent-note">
+              Kept on this device only. On another phone, use the form below.
+            </p>
+          </section>
+        )}
 
         <form className="track-form" onSubmit={submit}>
           <div className="field">
@@ -145,7 +222,7 @@ export function TrackPage() {
           </div>
         )}
 
-        {!order && !error && (
+        {!order && !error && recent.length === 0 && (
           <p className="track-hint">
             <LuSearch aria-hidden="true" />
             Both are needed — order numbers are short, so the phone number is

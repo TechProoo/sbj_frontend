@@ -803,3 +803,249 @@
 .notify-note svg { width: 17px; height: 17px; flex-shrink: 0; margin-top: 2px; }
 
 .notify-note.is-on { color: var(--ok); }
+
+/* --------------------------------------------------- orders on this device */
+
+.track-recent {
+  margin-top: var(--s-6);
+  text-align: left;
+}
+
+.track-recent-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+
+.track-recent-clear {
+  padding: 0;
+  min-height: 0;
+  font-size: var(--t-xs);
+}
+
+.track-recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.track-recent-list li + li { border-top: 1px solid var(--line-soft); }
+
+.track-recent-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  width: 100%;
+  padding: var(--s-4) var(--s-5);
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  color: var(--ink);
+  transition: background 0.18s ease;
+}
+
+.track-recent-item:hover:not(:disabled) { background: var(--surface-sunken); }
+.track-recent-item:disabled { opacity: 0.55; cursor: default; }
+.track-recent-item.is-current { background: var(--brand-soft); }
+
+.track-recent-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.track-recent-main b {
+  font-weight: 800;
+  letter-spacing: var(--track-tight);
+}
+
+.track-recent-main small {
+  color: var(--ink-muted);
+  font-size: var(--t-xs);
+}
+
+.track-recent-total {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.track-recent-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--ink-faint);
+}
+
+.track-recent-note {
+  margin-top: var(--s-3);
+  color: var(--ink-faint);
+  font-size: var(--t-xs);
+}
+
+/* ------------------------------------------------- typed or pinned address */
+
+.addr-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-2);
+  padding: var(--s-1);
+  background: var(--surface-sunken);
+  border-radius: var(--r-pill);
+}
+
+.addr-mode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: 10px var(--s-3);
+  border: 0;
+  border-radius: var(--r-pill);
+  background: none;
+  color: var(--ink-muted);
+  font: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.addr-mode svg { width: 16px; height: 16px; }
+.addr-mode:hover:not(.is-current) { color: var(--ink); }
+
+.addr-mode.is-current {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+
+.addr-pin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.addr-pin-get { justify-content: center; }
+
+.addr-pin-found {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.addr-pin-found > svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: var(--brand);
+}
+
+.addr-pin-found > div { flex: 1; min-width: 0; }
+.addr-pin-found b { display: block; font-weight: 800; }
+
+.addr-pin-found small {
+  color: var(--ink-muted);
+  font-size: var(--t-xs);
+}
+
+.addr-pin-found .btn { flex-shrink: 0; padding: 0; min-height: 0; }
+
+.confirm-where {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  padding: var(--s-5);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+}
+
+.confirm-where > svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--brand);
+  margin-top: 2px;
+}
+
+.confirm-where p { margin-top: var(--s-1); font-weight: 600; }
+
+.confirm-where small {
+  display: block;
+  margin-top: var(--s-1);
+  color: var(--ink-muted);
+  font-size: var(--t-xs);
+}
+
+/* ------------------------------------------- keep your details, after a pay */
+
+.keep-modal { width: min(460px, 100%); }
+
+.keep-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--s-2);
+  color: var(--brand);
+}
+
+.keep-kicker svg { width: 14px; height: 14px; }
+
+.keep-modal .modal-head h2 { font-size: 1.75rem; }
+
+.keep-body { gap: var(--s-4); }
+
+.keep-pair {
+  display: grid;
+  gap: var(--s-3);
+  margin: 0;
+  padding: var(--s-4) var(--s-5);
+  background: var(--surface-sunken);
+  border-radius: var(--r-md);
+}
+
+.keep-pair dt {
+  color: var(--ink-muted);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.keep-pair dd { margin: 2px 0 0; }
+
+.keep-strong {
+  font-size: 1.375rem;
+  font-weight: 900;
+  letter-spacing: var(--track-tight);
+  font-variant-numeric: tabular-nums;
+  /* The two values people retype or read down a phone — let them select. */
+  user-select: all;
+}
+
+.keep-copy { align-self: flex-start; }
+
+.keep-note {
+  color: var(--ink-muted);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+}
+
+.keep-foot { padding-top: var(--s-4); }
+
+@media (max-width: 520px) {
+  .keep-modal .modal-head h2 { font-size: 1.5rem; }
+  .keep-strong { font-size: 1.25rem; }
+}
