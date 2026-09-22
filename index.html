@@ -10,10 +10,10 @@
       trailing slash, because every canonical, og:url and JSON-LD URL here is
       built from it. It is set in netlify.toml.
     -->
-    <title>SBJ Foods and Drinks — Nigerian food delivery in Lagos</title>
+    <title>SBJ Foods and Drinks — food delivery at UI, Ibadan</title>
     <meta
       name="description"
-      content="Jollof, swallow and soup, shawarma and small chops, cooked to order in Lagos. Delivery to Ikeja, Yaba, Surulere and Lekki, or collect in store. Plates from ₦200."
+      content="Jollof, swallow and soup, shawarma and small chops, cooked to order at the Independence Hall cafeteria, University of Ibadan. Delivery across campus and to Agbowo, Sango, Bodija and Orogun, or collect at the counter. Plates from ₦200."
     />
     <link rel="canonical" href="%VITE_SITE_URL%/" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
@@ -27,18 +27,20 @@
       Google, which does execute JS.
     -->
     <meta property="og:site_name" content="SBJ Foods and Drinks" />
-    <meta property="og:type" content="restaurant.restaurant" />
+    <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_NG" />
     <meta property="og:url" content="%VITE_SITE_URL%/" />
     <meta
       property="og:title"
-      content="SBJ Foods and Drinks — Nigerian food delivery in Lagos"
+      content="SBJ Foods and Drinks — food delivery at UI, Ibadan"
     />
     <meta
       property="og:description"
-      content="Jollof, swallow and soup, shawarma and small chops, cooked to order. Delivery across Lagos or collect in store."
+      content="Jollof, swallow and soup, shawarma and small chops, cooked to order at Indy Hall, UI. Delivery across campus and nearby, or collect at the counter."
     />
     <meta property="og:image" content="%VITE_SITE_URL%/og/share.jpg" />
+    <meta property="og:image:secure_url" content="%VITE_SITE_URL%/og/share.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
@@ -49,11 +51,11 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="SBJ Foods and Drinks — Nigerian food delivery in Lagos"
+      content="SBJ Foods and Drinks — food delivery at UI, Ibadan"
     />
     <meta
       name="twitter:description"
-      content="Jollof, swallow and soup, shawarma and small chops, cooked to order. Delivery across Lagos or collect in store."
+      content="Jollof, swallow and soup, shawarma and small chops, cooked to order at Indy Hall, UI. Delivery across campus and nearby, or collect at the counter."
     />
     <meta name="twitter:image" content="%VITE_SITE_URL%/og/share.jpg" />
 
@@ -77,21 +79,11 @@
       ------------------------------------------------ structured data
 
       This is what puts opening hours, the price range and a menu link into
-      Google's result for "sbj foods lagos" rather than a bare blue link.
+      Google's result for "sbj foods ui" rather than a bare blue link.
 
-      TWO PROPERTIES ARE MISSING AND YOU SHOULD ADD THEM, inside "address":
-
-          "streetAddress": "12 Example Road, Ikeja",
-
-      and alongside it:
-
-          "telephone": "+234XXXXXXXXXX"
-
-      They are omitted rather than invented, because a wrong address on a
-      restaurant listing sends people to the wrong building. Local search
-      ranks heavily on both, so this is worth doing before launch — and the
-      same details belong in a Google Business Profile, which is what
-      actually drives the map pack.
+      The address and telephone below are the real ones. Keep them exactly in
+      step with the Google Business Profile — Google cross-checks the two, and
+      a mismatch quietly costs you the map pack.
     -->
     <script type="application/ld+json">
       {
@@ -101,7 +93,7 @@
         "url": "%VITE_SITE_URL%/",
         "image": "%VITE_SITE_URL%/og/share.jpg",
         "logo": "%VITE_SITE_URL%/brand/sbj-logo.png",
-        "description": "Nigerian kitchen classics cooked to order in Lagos — jollof and fried rice, swallow and soup, shawarma, small chops and drinks. Delivery, pickup and dine-in.",
+        "description": "Nigerian kitchen classics cooked to order at the Independence Hall cafeteria, University of Ibadan — jollof and fried rice, swallow and soup, shawarma, small chops and drinks. Delivery, pickup and dine-in.",
         "servesCuisine": ["Nigerian", "West African"],
         "priceRange": "₦₦",
         "currenciesAccepted": "NGN",
@@ -110,15 +102,18 @@
         "acceptsReservations": "False",
         "address": {
           "@type": "PostalAddress",
-          "addressLocality": "Lagos",
-          "addressRegion": "Lagos",
+          "streetAddress": "Independence Hall Cafeteria, Great Independence Hall, University of Ibadan",
+          "addressLocality": "Ibadan",
+          "addressRegion": "Oyo",
           "addressCountry": "NG"
         },
+        "telephone": "+2349112378705",
         "areaServed": [
-          { "@type": "Place", "name": "Ikeja" },
-          { "@type": "Place", "name": "Yaba" },
-          { "@type": "Place", "name": "Surulere" },
-          { "@type": "Place", "name": "Lekki" }
+          { "@type": "Place", "name": "University of Ibadan" },
+          { "@type": "Place", "name": "Agbowo" },
+          { "@type": "Place", "name": "Sango, Ibadan" },
+          { "@type": "Place", "name": "Bodija" },
+          { "@type": "Place", "name": "Orogun, Ibadan" }
         ],
         "openingHoursSpecification": [
           {

@@ -1389,6 +1389,23 @@ a { color: inherit; }
 .site-footer p { opacity: 0.72; font-size: var(--t-sm); }
 .site-footer ul { list-style: none; margin: 0; padding: 0; }
 .site-footer li { padding: 6px 0; font-size: var(--t-sm); opacity: 0.72; }
+.site-footer p + p { margin-top: var(--s-3); }
+
+/* The delivery number is the one thing in the footer somebody taps in a
+   hurry, so it gets full opacity and a large enough hit area on a phone. */
+.site-footer .footer-phone {
+  color: var(--brand);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--brand) 45%, transparent);
+  padding-bottom: 1px;
+}
+.site-footer .footer-phone:hover,
+.site-footer .footer-phone:focus-visible {
+  border-bottom-color: var(--brand);
+}
 
 .site-footer-base {
   margin-top: var(--s-7);

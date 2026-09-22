@@ -1,5 +1,10 @@
 import { Link } from 'react-router-dom';
 
+/// The delivery number, in two shapes: the one people dial, and the E.164 one
+/// `tel:` wants so it still works from a phone roaming outside Nigeria.
+const PHONE_DISPLAY = '0911 237 8705';
+const PHONE_TEL = '+2349112378705';
+
 export function Footer() {
   return (
     <footer className="site-footer">
@@ -8,7 +13,14 @@ export function Footer() {
           <span className="label">SBJ Foods and Drinks</span>
           <h3>Come hungry.</h3>
           <p>
-            Lagos · Since the pot was small. Open every day, 8:00 to 21:30.
+            Independence Hall Cafeteria, Great Independence Hall, University of
+            Ibadan. Open every day, 8:00 to 21:30.
+          </p>
+          <p>
+            Delivery ·{' '}
+            <a className="footer-phone" href={`tel:${PHONE_TEL}`}>
+              {PHONE_DISPLAY}
+            </a>
           </p>
         </div>
 
@@ -28,10 +40,11 @@ export function Footer() {
         <div>
           <span className="label">Zones</span>
           <ul>
-            <li>Ikeja</li>
-            <li>Yaba</li>
-            <li>Surulere</li>
-            <li>Lekki</li>
+            <li>UI campus</li>
+            <li>Agbowo</li>
+            <li>Sango</li>
+            <li>Bodija</li>
+            <li>Orogun</li>
           </ul>
         </div>
       </div>

@@ -74,35 +74,35 @@ is worse than having no SEO at all.
 
 It is baked in at build time, so changing it needs a redeploy, not a restart.
 
-### 2. Fill in the address and phone number
+### 2. ~~Fill in the address and phone number~~ — done
 
-In [index.html](index.html), inside the JSON-LD block at the bottom, add:
+The JSON-LD now carries the real ones:
 
-```json
-"address": {
-  "@type": "PostalAddress",
-  "streetAddress": "12 Example Road, Ikeja",
-  ...
-},
-"telephone": "+234XXXXXXXXXX",
+```
+Independence Hall Cafeteria, Great Independence Hall, University of Ibadan
+Ibadan, Oyo State
++234 911 237 8705
 ```
 
-They are deliberately left out rather than filled with a guess, because a
-wrong address on a restaurant listing sends hungry people to the wrong
-building.
+**Check the delivery zones.** The site currently names Agbowo, Sango, Bodija
+and Orogun as the areas served beyond campus. Those are my pick of the
+neighbourhoods next to UI, not something you told me — change them in
+[index.html](index.html) (`areaServed`) and
+[src/components/Footer.tsx](src/components/Footer.tsx) if you cover different
+ground.
 
 ### 3. Create a Google Business Profile
 
 This is the single highest-value item on the list, and it is not something
 code can do.
 
-When someone in Lagos searches "jollof near me" or "food delivery Ikeja", the
+When a student searches "food near UI" or "jollof Agbowo", the
 map pack at the top of the results comes from Google Business Profile, not
 from the website. Claim the listing at
 [business.google.com](https://business.google.com), use the **same** name,
-address and phone number as the JSON-LD above, add photos, and set the opening
-hours to match (the site currently declares 08:00–21:30 daily — change both if
-that is wrong).
+address and phone number as above — Google cross-checks them and a mismatch
+quietly costs you the listing — add photos, and set the opening hours to match
+(the site declares 08:00–21:30 daily; change both if that is wrong).
 
 ### 4. Submit the sitemap
 

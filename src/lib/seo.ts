@@ -17,10 +17,10 @@ export const SITE_URL = (
 ).replace(/\/$/, '');
 
 const DEFAULT_TITLE =
-  'SBJ Foods and Drinks — Nigerian food delivery in Lagos';
+  'SBJ Foods and Drinks — food delivery at UI, Ibadan';
 
 const DEFAULT_DESCRIPTION =
-  'Jollof, swallow and soup, shawarma and small chops, cooked to order in Lagos. Delivery to Ikeja, Yaba, Surulere and Lekki, or collect in store. Plates from ₦200.';
+  'Jollof, swallow and soup, shawarma and small chops, cooked to order at the Independence Hall cafeteria, University of Ibadan. Delivery across campus and to Agbowo, Sango, Bodija and Orogun, or collect at the counter. Plates from ₦200.';
 
 export interface SeoOptions {
   title?: string;

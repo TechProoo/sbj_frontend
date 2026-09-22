@@ -90,7 +90,7 @@ export function Header({
           />
           <span className="brand-text">
             <strong>SBJ Foods and Drinks</strong>
-            <small>Lagos · Since the pot was small</small>
+            <small>Indy Hall, UI · Since the pot was small</small>
             <em className="brand-sub">Food &amp; Drinks</em>
           </span>
         </Link>

@@ -35,7 +35,7 @@ export function FullMenuPage({
   useSeo({
     title: 'The full menu',
     description:
-      'Every dish SBJ cooks — jollof and fried rice, ofada, swallow and soup, shawarma, suya, small chops and drinks. Plates from ₦200, delivered across Lagos.',
+      'Every dish SBJ cooks — jollof and fried rice, ofada, swallow and soup, shawarma, suya, small chops and drinks. Plates from ₦200, delivered across UI and nearby Ibadan.',
     path: '/menu',
   });
 

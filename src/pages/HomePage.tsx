@@ -38,7 +38,7 @@ export function HomePage({
 }) {
   useSeo({
     description:
-      'Jollof, swallow and soup, shawarma and small chops, cooked to order in Lagos. Delivery to Ikeja, Yaba, Surulere and Lekki, or collect in store.',
+      'Jollof, swallow and soup, shawarma and small chops, cooked to order at Indy Hall, UI. Delivery across campus and to Agbowo, Sango, Bodija and Orogun, or collect at the counter.',
     path: '/',
   });
 
@@ -212,7 +212,7 @@ export function HomePage({
         </div>
         <div className="stat-cell">
           <b>4 zones</b>
-          <span>Ikeja · Yaba · Surulere · Lekki</span>
+          <span>UI campus · Agbowo · Sango · Bodija · Orogun</span>
         </div>
         <div className="stat-cell">
           <b>1 day</b>
