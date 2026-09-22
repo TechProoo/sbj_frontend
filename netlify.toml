@@ -1,0 +1,90 @@
+# SBJ Foods and Drinks — customer storefront, deployed on Netlify.
+#
+# This is a static SPA. Everything dynamic comes from the API at
+# VITE_API_URL, which is baked into the bundle at BUILD time — changing it
+# in the Netlify UI needs a redeploy, not just a restart.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Vite 8 requires ^20.19 || >=22.12. Pinned so a change to Netlify's
+  # default image cannot break the build without warning.
+  NODE_VERSION = "22"
+
+# ---------------------------------------------------------------- routing
+
+# React Router owns every path below. Without this, a direct hit on /menu or
+# a refresh on /track returns Netlify's 404 instead of the app.
+#
+# It matters most for /payment/callback: Paystack sends the customer there as
+# a full cross-site navigation, so that URL is requested from the server cold,
+# with no client-side router in memory to catch it. A 404 there looks to the
+# customer exactly like a payment that ate their money.
+#
+# Static files that exist on disk are served before this rule is considered,
+# so /sw.js, /manifest.webmanifest and the images are unaffected.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# ---------------------------------------------------------------- caching
+
+# The service worker must never be served stale: a cached sw.js is a device
+# pinned to an old build with no way to update itself.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Vite fingerprints everything in /assets, so the filename changes whenever
+# the content does. These are safe to keep forever.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Photography and brand marks keep their filenames across deploys, so they
+# revalidate rather than being frozen for a year. The service worker also
+# holds these cache-first, which covers the repeat visit.
+[[headers]]
+  for = "/menu/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/brand/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+# ---------------------------------------------------------------- security
+
+# No Content-Security-Policy here on purpose. A correct one has to name the
+# API origin, the websocket origin and Paystack, and those differ per
+# deploy — a CSP written blind fails closed and takes checkout down with it.
+# See README.deploy.md if you want to add one once the hosts are known.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
