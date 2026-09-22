@@ -8,6 +8,7 @@ import {
   LuReceipt,
 } from 'react-icons/lu';
 import { OrderDocket } from '../components/OrderDocket';
+import { NotifyToggle } from '../components/NotifyToggle';
 import { OrderProgress } from '../components/OrderProgress';
 import { api, ApiError } from '../lib/api';
 import { formatMoney } from '../lib/format';
@@ -210,6 +211,9 @@ export function OrderConfirmationPage() {
 
       <section className="confirm-panel confirm-progress">
         <OrderProgress status={status} />
+        <div className="notify-slot">
+          <NotifyToggle orderId={order.id} />
+        </div>
       </section>
 
       <section className="confirm-panel confirm-docket">

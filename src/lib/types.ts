@@ -165,3 +165,13 @@ export interface ShowcaseEntry {
   ctaHref: string | null;
   happenedAt: string | null;
 }
+
+/// A post on the kitchen's feed: one picture and something to say about it.
+export interface FeedPost {
+  id: string;
+  kind: 'PROMO' | 'GIST';
+  caption: string;
+  imageUrl: string;
+  createdAt: string;
+  author: string | null;
+}

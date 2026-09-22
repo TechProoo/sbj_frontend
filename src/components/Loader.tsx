@@ -235,7 +235,7 @@ export function Loader({
       <div className="loader-inner">
         <img
           className="loader-mark"
-          src="/brand/sbj-logo.jpg"
+          src="/brand/sbj-logo.png"
           alt=""
           width={92}
           height={92}

@@ -1,5 +1,6 @@
 import type {
   Category,
+  FeedPost,
   MenuItem,
   Order,
   OrderType,
@@ -84,6 +85,8 @@ export const api = {
   getMenu: () => request<Category[]>('/menu'),
 
   getPromotions: () => request<Promotion[]>('/promotions'),
+
+  getFeed: () => request<FeedPost[]>('/feed'),
 
   getTestimonials: () => request<TestimonialFeed>('/testimonials'),
 

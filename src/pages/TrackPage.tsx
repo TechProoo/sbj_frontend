@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useGSAP } from '@gsap/react';
 import { LuSearch, LuTriangleAlert } from 'react-icons/lu';
 import { OrderDocket } from '../components/OrderDocket';
+import { NotifyToggle } from '../components/NotifyToggle';
 import { OrderProgress } from '../components/OrderProgress';
 import { api, ApiError } from '../lib/api';
 import { formatDateTime, formatMoney } from '../lib/format';
@@ -165,6 +166,9 @@ export function TrackPage() {
             </div>
 
             <OrderProgress status={order.status} events={order.events} />
+            <div className="notify-slot">
+              <NotifyToggle orderId={order.id} />
+            </div>
           </section>
 
           <section className="confirm-panel">

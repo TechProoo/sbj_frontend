@@ -2948,6 +2948,305 @@ a { color: inherit; }
   .menu-facts { gap: var(--s-4); }
 }
 
+
+/* ================================================================== feed */
+
+/*
+ * What's cooking — the kitchen's feed.
+ *
+ * Not a timeline of identical squares. Posts run in a three-beat rhythm
+ * (tall, wide, wide) and every caption sits in a white card that laps over
+ * the foot of its photograph, offset to one side. The overlap is the whole
+ * idea: it reads as printed matter rather than a social app, and it belongs
+ * to the same soft-cornered family as the dish cards.
+ */
+
+.feed-page {
+  padding-bottom: var(--s-7);
+}
+
+/* ------------------------------------------------------------- masthead */
+
+.feed-masthead {
+  padding: var(--s-6) var(--gutter) var(--s-5);
+}
+
+.feed-kicker {
+  display: inline-block;
+  color: var(--brand);
+  margin-bottom: var(--s-3);
+}
+
+.feed-title {
+  font-size: clamp(2.25rem, 8vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: var(--track-tight);
+  line-height: 0.98;
+  margin-bottom: var(--s-3);
+}
+
+.feed-lede {
+  color: var(--ink-muted);
+  font-size: var(--t-sm);
+  max-width: 42ch;
+}
+
+.feed-filters {
+  display: flex;
+  gap: var(--s-2);
+  margin-top: var(--s-5);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.feed-filters::-webkit-scrollbar { display: none; }
+
+.feed-filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  padding: 9px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface-raised);
+  color: var(--ink-muted);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease,
+    border-color 160ms ease;
+}
+
+.feed-filters button:hover { color: var(--ink); border-color: var(--line-strong); }
+
+.feed-filters button.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
+}
+
+.feed-filters i {
+  font-style: normal;
+  font-size: var(--t-xs);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
+}
+
+/* ----------------------------------------------------------------- list */
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  /* Room for the caption card that hangs below each photograph. */
+  gap: var(--s-6);
+  padding: 0 var(--gutter);
+}
+
+.feed-post {
+  position: relative;
+  /* The caption card is pulled up over the photo, so the post reserves the
+     space it gives back. */
+  padding-bottom: var(--s-6);
+}
+
+/* ---------------------------------------------------------- photograph */
+
+.feed-photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: none;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: var(--surface-sunken);
+  cursor: zoom-in;
+}
+
+/* The first of every three runs tall — the rhythm that stops the page
+   reading as a list. */
+.feed-post.is-tall .feed-photo { aspect-ratio: 4 / 5; }
+
+.feed-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 600ms ease;
+}
+
+.feed-photo:hover img { transform: scale(1.03); }
+
+.feed-chip {
+  position: absolute;
+  top: var(--s-4);
+  left: var(--s-4);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--r-pill);
+  background: rgb(18 18 18 / 55%);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: var(--t-xs);
+  font-weight: 700;
+}
+
+.feed-chip svg { width: 13px; height: 13px; }
+
+/* An offer is the one thing on this page allowed to shout. */
+.feed-chip.is-promo {
+  background: var(--brand);
+  box-shadow: 0 6px 18px rgb(232 67 31 / 34%);
+}
+
+/* -------------------------------------------------------- caption card */
+
+.feed-card {
+  position: relative;
+  z-index: 1;
+  /* The lap over the photograph. */
+  margin: calc(var(--s-6) * -1) var(--s-4) 0 var(--s-5);
+  padding: var(--s-4) var(--s-5);
+  border-radius: var(--r-lg);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-md);
+}
+
+.feed-card p {
+  font-size: 1rem;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.feed-meta {
+  display: block;
+  margin-top: var(--s-3);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* Every other post laps the other way, so the column has a gentle zigzag
+   instead of one hard edge running down the page. */
+.feed-post:nth-child(even) .feed-card {
+  margin-left: var(--s-4);
+  margin-right: var(--s-5);
+}
+
+/* ------------------------------------------------------ states and shell */
+
+.feed-state { padding: 0 var(--gutter) var(--s-6); }
+
+.feed-empty {
+  text-align: center;
+  padding: var(--s-8) var(--gutter);
+  color: var(--ink-muted);
+}
+
+.feed-empty > svg {
+  width: 2.5rem;
+  height: 2.5rem;
+  stroke-width: 1.25;
+  margin: 0 auto var(--s-4);
+  color: var(--ink-faint);
+}
+
+.feed-empty h2 { font-size: var(--t-xl); margin-bottom: var(--s-2); }
+.feed-empty p { font-size: var(--t-sm); max-width: 34ch; margin: 0 auto; }
+
+.feed-skeleton {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--r-xl);
+}
+
+/* -------------------------------------------------------------- viewer */
+
+/* Tapping a picture opens it on black, with its caption under it. */
+.feed-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgb(8 8 8 / 94%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  cursor: zoom-out;
+}
+
+.feed-viewer img {
+  max-width: 100%;
+  max-height: 72vh;
+  border-radius: var(--r-lg);
+  object-fit: contain;
+}
+
+.feed-viewer p {
+  color: rgb(255 255 255 / 82%);
+  font-size: var(--t-sm);
+  text-align: center;
+  max-width: 52ch;
+  white-space: pre-line;
+}
+
+.feed-viewer-close {
+  position: absolute;
+  top: var(--s-5);
+  right: var(--s-5);
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: var(--r-pill);
+  background: rgb(255 255 255 / 14%);
+  color: #fff;
+  cursor: pointer;
+}
+
+.feed-viewer-close:hover { background: rgb(255 255 255 / 26%); }
+
+/* ---------------------------------------------------------- wider screens */
+
+/*
+ * The feed was drawn for a phone. On a desktop it becomes two columns, and
+ * the caption cards stop lapping — an overlap that reads as craft at 390px
+ * reads as a mistake at 1400.
+ */
+@media (min-width: 900px) {
+  .feed-masthead { padding: var(--s-7) var(--gutter) var(--s-6); }
+
+  .feed-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s-5);
+    align-items: start;
+  }
+
+  .feed-post { padding-bottom: 0; }
+
+  .feed-post .feed-card {
+    margin: calc(var(--s-5) * -1) var(--s-5) 0;
+  }
+
+  .feed-post.is-tall .feed-photo { aspect-ratio: 4 / 3; }
+}
+
+@media (min-width: 1300px) {
+  .feed-list { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-photo:hover img { transform: none; }
+}
+
 /* ======================================================= phone app shell */
 
 /*

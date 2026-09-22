@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { LuBookmark, LuHouse, LuReceipt, LuShoppingBag, LuUtensils } from "react-icons/lu";
+import { LuHouse, LuNewspaper, LuReceipt, LuShoppingBag, LuUtensils } from "react-icons/lu";
 import { useCart } from "../context/CartContext";
-import { useSavedCount } from "../lib/saved";
 
 /*
  * The phone's bottom bar: five slots with the order button raised through the
@@ -13,7 +12,6 @@ import { useSavedCount } from "../lib/saved";
  */
 export function MobileTabBar() {
   const { count, setOpen } = useCart();
-  const saved = useSavedCount();
   const { pathname, search } = useLocation();
 
   const onSaved = pathname === "/menu" && search.includes("saved=1");
@@ -45,10 +43,11 @@ export function MobileTabBar() {
         Order
       </button>
 
-      <Link to="/menu?saved=1" className={tab(onSaved)}>
-        <LuBookmark aria-hidden="true" />
-        Saved
-        {saved > 0 && <b className="tab-dot" aria-hidden="true" />}
+      {/* Saved keeps its shortcut in the header; this slot goes to the feed,
+          which is somewhere to go rather than a tool. */}
+      <Link to="/feed" className={tab(pathname === "/feed")}>
+        <LuNewspaper aria-hidden="true" />
+        Feed
       </Link>
 
       <Link to="/track" className={tab(pathname === "/track")}>

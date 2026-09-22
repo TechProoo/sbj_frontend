@@ -10,6 +10,7 @@ import {
 import { CartDrawer } from './components/CartDrawer';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
+import { InstallPrompt } from './components/InstallPrompt';
 import { Loader } from './components/Loader';
 import { MobileTabBar } from './components/MobileTabBar';
 import { CartProvider } from './context/CartContext';
@@ -17,6 +18,7 @@ import { useHeroEntry } from './hooks/useHeroEntry';
 import { useMenu } from './hooks/useMenu';
 import { useScrollReveal } from './hooks/useScrollReveal';
 import { CheckoutPage } from './pages/CheckoutPage';
+import { FeedPage } from './pages/FeedPage';
 import { FullMenuPage } from './pages/FullMenuPage';
 import { HomePage } from './pages/HomePage';
 import { OrderConfirmationPage } from './pages/OrderConfirmationPage';
@@ -109,6 +111,7 @@ function Shell() {
         <Routes>
           <Route path="/" element={<HomePage {...menuProps} />} />
           <Route path="/menu" element={<FullMenuPage {...menuProps} />} />
+          <Route path="/feed" element={<FeedPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order/:id" element={<OrderConfirmationPage />} />
           <Route path="/payment/callback" element={<PaymentCallbackPage />} />
@@ -127,6 +130,8 @@ function Shell() {
           />
         </Routes>
       </main>
+
+      <InstallPrompt />
 
       <Footer />
       <CartDrawer />

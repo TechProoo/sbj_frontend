@@ -83,7 +83,7 @@ export function Header({
         <Link to="/" className="brand">
           <img
             className="brand-mark"
-            src="/brand/sbj-logo.jpg"
+            src="/brand/sbj-logo.png"
             alt=""
             width={62}
             height={62}
